@@ -49,7 +49,7 @@ public class AuthController {
         UserModel model = new UserModel();
         model.setName(registerDto.name());
         model.setEmail(registerDto.email());
-        model.setPassword(registerDto.password());
+        model.setPassword(passwordEncoder.encode(registerDto.password()));
         String token = this.tokenService.generateToken(model);
 
         this.authService.saveUser(model);
