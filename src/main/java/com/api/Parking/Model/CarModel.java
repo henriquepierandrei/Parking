@@ -26,6 +26,5 @@ public class CarModel {
     private String carMark;
     @NotEmpty
     private String carModel;
-    @NotEmpty
-    private String code;
+
 }
