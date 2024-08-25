@@ -1,14 +1,10 @@
 package com.api.Parking.Model;
 
 
-import com.api.Parking.Enum.PlaceEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.sql.Time;
-import java.util.Date;
 
 @Data
 @Entity
@@ -31,5 +27,5 @@ public class ParkedModel {
     private String exitTime="";
 
 
-    private String Code;
+    private String code;
 }

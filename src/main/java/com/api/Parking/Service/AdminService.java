@@ -1,19 +1,20 @@
 package com.api.Parking.Service;
 
 
-import com.api.Parking.Dto.CreateParkedDto;
+import com.api.Parking.Model.CarModel;
 import com.api.Parking.Model.ParkedModel;
+import com.api.Parking.Repository.CarRepository;
 import com.api.Parking.Repository.ParkedRepository;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
 @Service
 public class AdminService {
     @Autowired ParkedRepository parkedRepository;
+    @Autowired CarRepository carRepository;
 
 
     public List<ParkedModel> getParkedByDate(String date) {
@@ -64,4 +65,15 @@ public class AdminService {
         return stringBuilder.toString();
     }
 
+    public void saveCar(CarModel model){
+        this.carRepository.save(model);
+    }
+
+    public void saveParked(ParkedModel parkedModel) {
+        this.parkedRepository.save(parkedModel);
+    }
+
+    public Optional<ParkedModel> getByDateAndPlace(String date, String place) {
+        return this.parkedRepository.findByDateAndPlace(date,place);
+    }
 }
