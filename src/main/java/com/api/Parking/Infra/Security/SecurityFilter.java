@@ -1,5 +1,6 @@
 package com.api.Parking.Infra.Security;
 
+import com.api.Parking.Model.UserModel;
 import com.api.Parking.Repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
