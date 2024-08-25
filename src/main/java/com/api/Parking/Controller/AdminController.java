@@ -32,12 +32,15 @@ public class AdminController {
 
     @PostMapping("/create")
     public Object createParked(@RequestBody CreateParkedDto createParkedDto){
-        Optional<ParkedModel> optionalParkedModel = this.adminService.getByDateAndPlace(createParkedDto.date(),createParkedDto.place());
-        if (optionalParkedModel.isEmpty()){
+
+        // Verifica se já existe algum carro na vaga!
+        Optional<ParkedModel> optionalParkedModel = this.adminService.getByPlace(createParkedDto.place());
+        if (optionalParkedModel.isPresent()){
+            // Se existe, retornar uma mensagem dizendo que está indisponível a vaga para estacionamento!
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not available!");
         }
 
-
+        // Cria a entidade CarModel para armazenar no ParkedModel e salvando no Banco de Dados.
         CarModel model = new CarModel();
         model.setCarModel(createParkedDto.car().getCarModel());
         model.setCarMark(createParkedDto.car().getCarMark());
@@ -46,6 +49,7 @@ public class AdminController {
         this.adminService.saveCar(model);
 
 
+        // Criando ParkedModel e salvando no Banco de Dados.
         ParkedModel parkedModel = new ParkedModel();
         parkedModel.setDate(createParkedDto.date());
         parkedModel.setArrivalTime(createParkedDto.arrivalTime());

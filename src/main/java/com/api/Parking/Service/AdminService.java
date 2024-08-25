@@ -73,7 +73,7 @@ public class AdminService {
         this.parkedRepository.save(parkedModel);
     }
 
-    public Optional<ParkedModel> getByDateAndPlace(String date, String place) {
-        return this.parkedRepository.findByDateAndPlace(date,place);
+    public Optional<ParkedModel> getByPlace(String place) {
+        return this.parkedRepository.findByPlace(place);
     }
 }

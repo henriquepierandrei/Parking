@@ -11,5 +11,5 @@ public interface ParkedRepository extends JpaRepository<ParkedModel,Long> {
 
     Optional<ParkedModel> findByCode(String code);
 
-    Optional<ParkedModel> findByDateAndPlace(String date, String place);
+    Optional<ParkedModel> findByPlace(String place);
 }
