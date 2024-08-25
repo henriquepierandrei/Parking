@@ -20,7 +20,7 @@ public class ParkedModel {
     private long id;
 
 
-    private PlaceEnum place;
+    private String place;
 
     @ManyToOne
     private CarModel car;
@@ -28,7 +28,7 @@ public class ParkedModel {
 
     private String date;
     private String arrivalTime;
-    private String exitTime;
+    private String exitTime="";
 
 
     private String Code;
