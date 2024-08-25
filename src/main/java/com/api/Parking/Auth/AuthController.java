@@ -1,8 +1,11 @@
 package com.api.Parking.Auth;
 
+import com.api.Parking.Dto.LoginDto;
+import com.api.Parking.Dto.ResponseDto;
 import com.api.Parking.Infra.Security.TokenService;
 import com.api.Parking.Model.UserModel;
 import com.api.Parking.Repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
