@@ -13,14 +13,20 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("admin")
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
     private final AdminService adminService;
 
 
-    @GetMapping("parkeds")
-    public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") String date){
-        return ResponseEntity.status(HttpStatus.FOUND).body(this.adminService.getParkedByDate(date));
+    @GetMapping("/parkeds")
+    public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") String date) {
+        try {
+            List<?> parkeds = this.adminService.getParkedByDate(date);
+            return ResponseEntity.ok(parkeds);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
+
 }
