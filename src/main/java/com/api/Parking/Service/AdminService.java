@@ -17,12 +17,17 @@ public class AdminService {
 
 
     public List<ParkedModel> getParkedByDate(String date) {
+        // Verifica se a data é nula ou vazia
         if (date == null || date.isEmpty()){
             throw new IllegalArgumentException("This date is null or empty!");
         }
+
+        // Tenta verificar se existe a entidade pela data!
         try {
             List<ParkedModel> parkeds = this.parkedRepository.findByDate(date);
             return parkeds != null ? parkeds : Collections.emptyList();
+
+        // Caso nao existe retorna um erro!
         } catch (Exception e) {
             throw new ServiceException("Erro ao buscar os dados estacionados", e);
         }

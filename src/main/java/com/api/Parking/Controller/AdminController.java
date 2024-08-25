@@ -41,7 +41,8 @@ public class AdminController {
         parkedModel.setDate(createParkedDto.date());
         parkedModel.setArrivalTime(createParkedDto.arrivalTime());
         parkedModel.setPlace(createParkedDto.place().toString());
-
+        parkedModel.setCode(this.adminService.createCode());
+        
 
 
     }
