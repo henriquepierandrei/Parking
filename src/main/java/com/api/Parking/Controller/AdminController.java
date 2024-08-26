@@ -33,9 +33,11 @@ public class AdminController {
     @Operation(summary = "Obter todos os veículos estacionados, de acordo com a data atual!", description = "Retorna as informações do veículo e a vaga estacionado.")
     public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") String date) {
         try {
+            // Obtem e retorna a entidade salva no Banco de Dados!
             List<?> parkeds = this.adminService.getParkedByDate(date);
             return ResponseEntity.ok(parkeds);
         } catch (Exception e) {
+            // Caso há algum erro, retornar um ERROR 500
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -79,11 +81,17 @@ public class AdminController {
     @Operation(summary = "Obtém o valor a pagar de acordo com o tempo estacionado!", description = "Retorna o valor em reais!")
     @GetMapping("/parking/difference")
     public ResponseEntity<Object> finishParkingPerPlace(@RequestParam(value = "code") String code){
+        // Obtém a entidade de acordo com o seu código de acesso!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
+
+        // Se a entidade for encontrada, cai nessa condição!
         if (optionalParkedModel.isPresent()){
+
+            // Recebe o valor a pagar!
             String value = this.adminService.hourDifferent(LocalDateTime.parse(optionalParkedModel.get().getDateTimeArrival()),5);
             return ResponseEntity.status(HttpStatus.FOUND).body(value);
         }
+        // Caso não ache a entidade, retorna um erro!
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND!");
     }
 
@@ -92,13 +100,21 @@ public class AdminController {
     @DeleteMapping("/parking/delete")
     @Operation(summary = "Deleta o veiculo da vaga estacionada, podendo outro veículo usá-la!")
     public Object paidPark(@RequestParam(value = "code") String code){
+        // Obtém a entidade pelo código de acesso!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
+
+        // Verifica se foi encontrado, se sim ele cai na condição!
         if (optionalParkedModel.isPresent()){
+            // Deleta os dados do banco e retornar a vaga que foi liberada!
             this.adminService.deleteParkedAndCarModel(optionalParkedModel.get(),optionalParkedModel.get().getCar());
             return ResponseEntity.status(HttpStatus.OK).body("Place: "+optionalParkedModel.get().getPlace()+" disponível!");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not Found!");
+
+        // Caso não encontra, ele retornar um erro NOT FOUND!
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found!");
 
     }
+
+
 
 }
