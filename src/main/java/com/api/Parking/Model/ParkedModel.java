@@ -22,8 +22,10 @@ public class ParkedModel {
     private CarModel car;
 
 
-    private String date;
+    private String dateArrival;
     private String arrivalTime;
+
+    private String dateExit="";
     private String exitTime="";
 
 

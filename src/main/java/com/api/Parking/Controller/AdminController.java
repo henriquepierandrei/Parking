@@ -51,7 +51,7 @@ public class AdminController {
 
         // Criando ParkedModel e salvando no Banco de Dados.
         ParkedModel parkedModel = new ParkedModel();
-        parkedModel.setDate(createParkedDto.date());
+        parkedModel.setDateArrival(createParkedDto.dateArrival());
         parkedModel.setArrivalTime(createParkedDto.arrivalTime());
         parkedModel.setPlace(createParkedDto.place().toString());
         parkedModel.setCode(this.adminService.createCode());
