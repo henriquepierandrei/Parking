@@ -117,6 +117,7 @@ public class AdminController {
 
 
     @PutMapping("/parking/update")
+    @Operation(summary = "Atualiza algum dado estacionamento!")
     public ResponseEntity<ParkedModel> updatePark(@RequestParam(value = "code") String code, @RequestBody UpdateParkedDto updateParkedDto) {
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
 
