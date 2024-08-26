@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @AllArgsConstructor
@@ -22,10 +24,10 @@ public class ParkedModel {
     private CarModel car;
 
 
-    private String dateTimeArrival;
+    private LocalDateTime dateTimeArrival;
 
 
-    private String dateTimeExit="";
+    private LocalDateTime dateTimeExit;
 
 
 

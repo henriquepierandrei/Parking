@@ -2,14 +2,17 @@ package com.api.Parking.Service;
 
 
 import com.api.Parking.Model.CarModel;
+import com.api.Parking.Model.CollectionModel;
 import com.api.Parking.Model.ParkedModel;
 import com.api.Parking.Repository.CarRepository;
+import com.api.Parking.Repository.CollectionRepository;
 import com.api.Parking.Repository.ParkedRepository;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -17,11 +20,13 @@ import java.util.*;
 public class AdminService {
     @Autowired ParkedRepository parkedRepository;
     @Autowired CarRepository carRepository;
+    @Autowired
+    CollectionRepository collectionRepository;
 
 
-    public List<ParkedModel> getParkedByDate(String date) {
+    public List<ParkedModel> getParkedByDate(LocalDate date) {
         // Verifica se a data é nula ou vazia
-        if (date == null || date.isEmpty()){
+        if (date == null){
             throw new IllegalArgumentException("This date is null or empty!");
         }
 
@@ -82,7 +87,7 @@ public class AdminService {
         return this.parkedRepository.findByPlace(place);
     }
 
-    public String hourDifferent(LocalDateTime localDateTime, double valuePerHour) {
+    public Double hourDifferent(LocalDateTime localDateTime, double valuePerHour) {
         // Data e hora atual
         LocalDateTime now = LocalDateTime.now();
 
@@ -91,7 +96,7 @@ public class AdminService {
         long hours = diff.toHours();
 
         // Converte a diferença de horas para string
-        return String.valueOf("R$ " + hours*valuePerHour).replace('.', ',');
+        return hours*valuePerHour;
     }
 
     public Optional<ParkedModel> getByCode(String code) {
@@ -103,4 +108,17 @@ public class AdminService {
         this.parkedRepository.delete(parkedModel);
         this.carRepository.delete(model);
     }
+
+//    public String addCollectionValue(double value, LocalDate localDate){
+//        CollectionModel collectionModel = this.collectionRepository.findByDate(localDate);
+//        double oldValue = collectionModel.getFinalValue();
+//        double newValue = oldValue + value;
+//        collectionModel.setFinalValue(newValue);
+//        this.collectionRepository.save(collectionModel);
+//        System.out.println(newValue);
+//        return "R$ "+newValue;
+//
+//    }
+
+
 }

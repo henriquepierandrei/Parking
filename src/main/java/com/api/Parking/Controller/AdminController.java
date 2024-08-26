@@ -35,7 +35,7 @@ public class AdminController {
     public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") String date) {
         try {
             // Obtem e retorna a entidade salva no Banco de Dados!
-            List<?> parkeds = this.adminService.getParkedByDate(date);
+            List<?> parkeds = this.adminService.getParkedByDate(LocalDate.parse(date));
             return ResponseEntity.ok(parkeds);
         } catch (Exception e) {
             // Caso há algum erro, retornar um ERROR 500
@@ -67,7 +67,7 @@ public class AdminController {
 
         // Criando ParkedModel e salvando no Banco de Dados.
         ParkedModel parkedModel = new ParkedModel();
-        parkedModel.setDateTimeArrival(LocalDateTime.now().toString());
+        parkedModel.setDateTimeArrival(LocalDateTime.now());
         parkedModel.setPlace(createParkedDto.place().toString());
         parkedModel.setCode(this.adminService.createCode());
         parkedModel.setCar(model);
@@ -89,7 +89,8 @@ public class AdminController {
         if (optionalParkedModel.isPresent()){
 
             // Recebe o valor a pagar!
-            String value = this.adminService.hourDifferent(LocalDateTime.parse(optionalParkedModel.get().getDateTimeArrival()),5);
+            Double value = this.adminService.hourDifferent(optionalParkedModel.get().getDateTimeArrival(),5);
+            
             return ResponseEntity.status(HttpStatus.FOUND).body(value);
         }
         // Caso não ache a entidade, retorna um erro!
@@ -98,7 +99,7 @@ public class AdminController {
 
 
     @DeleteMapping("/parking/delete")
-    @Operation(summary = "Deleta o veiculo da vaga estacionada, podendo outro veículo usá-la!")
+    @Operation(summary = "Deleta o veiculo após o pagamento, da vaga estacionada, podendo outro veículo usá-la!")
     public ResponseEntity<Object> paidPark(@RequestParam(value = "code") String code){
         // Obtém a entidade pelo código de acesso!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
