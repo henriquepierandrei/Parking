@@ -34,7 +34,7 @@ public class AdminController {
     }
 
     @PostMapping("/create")
-    public Object createParked(@RequestBody CreateParkedDto createParkedDto){
+    public ResponseEntity<?> createParked(@RequestBody CreateParkedDto createParkedDto){
 
         // Verifica se já existe algum carro na vaga!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByPlace(createParkedDto.place());
@@ -63,19 +63,27 @@ public class AdminController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(parkedModel);
 
-
-
-
     }
 
     @GetMapping("/parking/difference")
-    public Object finishParkingPerPlace(@RequestParam(value = "code") String code){
+    public ResponseEntity<Object> finishParkingPerPlace(@RequestParam(value = "code") String code){
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
         if (optionalParkedModel.isPresent()){
             String value = this.adminService.hourDifferent(LocalDateTime.parse(optionalParkedModel.get().getDateTimeArrival()),5);
             return ResponseEntity.status(HttpStatus.FOUND).body(value);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND!");
+    }
+
+    @DeleteMapping("/parking/paid")
+    public Object paidPark(@RequestParam(value = "code") String code){
+        Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
+        if (optionalParkedModel.isPresent()){
+            this.adminService.deleteParkedAndCarModel(optionalParkedModel.get(),optionalParkedModel.get().getCar());
+            return ResponseEntity.status(HttpStatus.OK).body("Place: "+optionalParkedModel.get().getPlace()+" disponível!");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not Found!");
+
     }
 
 }

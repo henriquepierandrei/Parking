@@ -98,4 +98,9 @@ public class AdminService {
         // Obtem o parkedModel pelo codigo de acesso!
         return this.parkedRepository.findByCode(code);
     }
+
+    public void deleteParkedAndCarModel(ParkedModel parkedModel, CarModel model){
+        this.parkedRepository.delete(parkedModel);
+        this.carRepository.delete(model);
+    }
 }
