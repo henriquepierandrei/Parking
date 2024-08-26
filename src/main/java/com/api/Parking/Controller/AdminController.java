@@ -4,6 +4,11 @@ import com.api.Parking.Dto.CreateParkedDto;
 import com.api.Parking.Model.CarModel;
 import com.api.Parking.Model.ParkedModel;
 import com.api.Parking.Service.AdminService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +24,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@ApiResponse()
 public class AdminController {
     private final AdminService adminService;
 
 
     @GetMapping("/parkeds")
+    @Operation(summary = "Obter todos os veículos estacionados de acordo com a data atual!", description = "Retorna as informações do veículo e a vaga estacionado.")
     public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") String date) {
         try {
             List<?> parkeds = this.adminService.getParkedByDate(date);
@@ -33,7 +40,10 @@ public class AdminController {
         }
     }
 
+
+
     @PostMapping("/create")
+    @Operation(summary = "Registrar veículo estacionado!")
     public ResponseEntity<?> createParked(@RequestBody CreateParkedDto createParkedDto){
 
         // Verifica se já existe algum carro na vaga!
@@ -65,6 +75,8 @@ public class AdminController {
 
     }
 
+
+    @Operation(summary = "Obtém o valor de acordo com o tempo estacionado", description = "Retorna o valor em reais!")
     @GetMapping("/parking/difference")
     public ResponseEntity<Object> finishParkingPerPlace(@RequestParam(value = "code") String code){
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
@@ -75,7 +87,10 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND!");
     }
 
-    @DeleteMapping("/parking/paid")
+
+
+    @DeleteMapping("/parking/delete")
+    @Operation(summary = "Deleta o veiculo da vaga estacionada, podendo outro veículo usá-la!")
     public Object paidPark(@RequestParam(value = "code") String code){
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
         if (optionalParkedModel.isPresent()){
