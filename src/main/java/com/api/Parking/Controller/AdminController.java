@@ -1,6 +1,7 @@
 package com.api.Parking.Controller;
 
 import com.api.Parking.Dto.CreateParkedDto;
+import com.api.Parking.Dto.UpdateParkedDto;
 import com.api.Parking.Model.CarModel;
 import com.api.Parking.Model.ParkedModel;
 import com.api.Parking.Service.AdminService;
@@ -96,10 +97,9 @@ public class AdminController {
     }
 
 
-
     @DeleteMapping("/parking/delete")
     @Operation(summary = "Deleta o veiculo da vaga estacionada, podendo outro veículo usá-la!")
-    public Object paidPark(@RequestParam(value = "code") String code){
+    public ResponseEntity<Object> paidPark(@RequestParam(value = "code") String code){
         // Obtém a entidade pelo código de acesso!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
 
@@ -114,6 +114,53 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found!");
 
     }
+
+
+    @PutMapping("/parking/update")
+    public ResponseEntity<ParkedModel> updatePark(@RequestParam(value = "code") String code, @RequestBody UpdateParkedDto updateParkedDto) {
+        Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
+
+        if (optionalParkedModel.isPresent()) {
+            ParkedModel parkedModel = optionalParkedModel.get();
+
+            // Atualiza o campo 'place' se necessário
+            if (updateParkedDto.place() != null && !updateParkedDto.place().isEmpty()) {
+                parkedModel.setPlace(updateParkedDto.place());
+            }
+
+            // Atualiza o 'CarModel' se necessário
+            if (updateParkedDto.model() != null) {
+                CarModel carModel = updateParkedDto.model();
+
+                // Verificar se todos os campos obrigatórios estão presentes e não vazios
+                if (carModel != null &&
+                        carModel.getPlate() != null && !carModel.getPlate().isEmpty() &&
+                        carModel.getColor() != null && !carModel.getColor().isEmpty() &&
+                        carModel.getCarMark() != null && !carModel.getCarMark().isEmpty() &&
+                        carModel.getCarModel() != null && !carModel.getCarModel().isEmpty()) {
+
+                    parkedModel.setCar(carModel);
+                    this.adminService.saveCar(carModel);
+                } else {
+                    // Se os campos obrigatórios estiverem faltando, pode-se retornar um erro
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+                }
+            }
+
+            // Salva a entidade atualizada
+            this.adminService.saveParked(parkedModel);
+
+            // Retorna a resposta de sucesso com o modelo atualizado
+            return ResponseEntity.status(HttpStatus.OK).body(parkedModel);
+        }
+
+        // Caso a entidade não seja encontrada, retornar uma resposta de conflito
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+
+
+
 
 
 
