@@ -23,7 +23,7 @@ public class UserModel {
 
     private String password;
 
-    private boolean isAdmin = false;
+    private boolean isAdmin = true;
 
 
 }
