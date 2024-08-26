@@ -29,7 +29,8 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    @Operation(summary = "Criar uma conta no sistema!")
+    @Operation(summary = "Logar em uma conta no sistema!")
+
     public ResponseEntity login(@RequestBody LoginDto loginDto){
         UserModel userModel = this.userRepository.findByEmail(loginDto.email()).orElseThrow(() -> new RuntimeException("User Not Found"));
         if (passwordEncoder.matches(loginDto.password(),userModel.getPassword())){
@@ -41,7 +42,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    @Operation(summary = "Logar em uma conta no sistema!")
+    @Operation(summary = "Criar uma conta no sistema!")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto){
         Optional<UserModel> userModelOptional = this.userRepository.findByEmail(registerDto.email());
         if (userModelOptional.isPresent()){
