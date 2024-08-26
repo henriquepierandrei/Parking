@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +54,7 @@ public class AdminController {
 
         // Criando ParkedModel e salvando no Banco de Dados.
         ParkedModel parkedModel = new ParkedModel();
-        parkedModel.setDateArrival(createParkedDto.dateArrival());
-        parkedModel.setArrivalTime(createParkedDto.arrivalTime());
+        parkedModel.setDateTimeArrival(LocalDateTime.now().toString());
         parkedModel.setPlace(createParkedDto.place().toString());
         parkedModel.setCode(this.adminService.createCode());
         parkedModel.setCar(model);
@@ -64,6 +66,16 @@ public class AdminController {
 
 
 
+    }
+
+    @GetMapping("/parking/difference")
+    public Object finishParkingPerPlace(@RequestParam(value = "code") String code){
+        Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
+        if (optionalParkedModel.isPresent()){
+            String value = this.adminService.hourDifferent(LocalDateTime.parse(optionalParkedModel.get().getDateTimeArrival()),5);
+            return ResponseEntity.status(HttpStatus.FOUND).body(value);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND!");
     }
 
 }

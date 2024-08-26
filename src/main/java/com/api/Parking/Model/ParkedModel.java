@@ -22,11 +22,11 @@ public class ParkedModel {
     private CarModel car;
 
 
-    private String dateArrival;
-    private String arrivalTime;
+    private String dateTimeArrival;
 
-    private String dateExit="";
-    private String exitTime="";
+
+    private String dateTimeExit="";
+
 
 
     private String code;

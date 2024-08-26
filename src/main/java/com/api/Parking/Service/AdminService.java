@@ -9,6 +9,8 @@ import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -25,7 +27,7 @@ public class AdminService {
 
         // Tenta verificar se existe a entidade pela data!
         try {
-            List<ParkedModel> parkeds = this.parkedRepository.findByDate(date);
+            List<ParkedModel> parkeds = this.parkedRepository.findByDateTimeArrival(date);
             return parkeds != null ? parkeds : Collections.emptyList();
 
         // Caso nao existe retorna um erro!
@@ -66,14 +68,34 @@ public class AdminService {
     }
 
     public void saveCar(CarModel model){
+        // Salva o veículo
         this.carRepository.save(model);
     }
 
     public void saveParked(ParkedModel parkedModel) {
+        // Salve parkedModel
         this.parkedRepository.save(parkedModel);
     }
 
     public Optional<ParkedModel> getByPlace(String place) {
+        // Obtem o parkedModel pela placa do veículo!
         return this.parkedRepository.findByPlace(place);
+    }
+
+    public String hourDifferent(LocalDateTime localDateTime, double valuePerHour) {
+        // Data e hora atual
+        LocalDateTime now = LocalDateTime.now();
+
+        // Calcula a duração entre 'start' e 'now'
+        Duration diff = Duration.between(localDateTime, now);
+        long hours = diff.toHours();
+
+        // Converte a diferença de horas para string
+        return String.valueOf("R$ " + hours*valuePerHour).replace('.', ',');
+    }
+
+    public Optional<ParkedModel> getByCode(String code) {
+        // Obtem o parkedModel pelo codigo de acesso!
+        return this.parkedRepository.findByCode(code);
     }
 }
