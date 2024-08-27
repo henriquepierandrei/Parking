@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +34,10 @@ public class AdminController {
 
     @GetMapping("/parkeds")
     @Operation(summary = "Obter todos os veículos estacionados, de acordo com a data atual!", description = "Retorna as informações do veículo e a vaga estacionado.")
-    public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") String date) {
+    public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") LocalDate date) {
         try {
             // Obtem e retorna a entidade salva no Banco de Dados!
-            List<?> parkeds = this.adminService.getParkedByDate(LocalDate.parse(date));
+            List<?> parkeds = Collections.singletonList(this.adminService.getParkedByDate(date));
             return ResponseEntity.ok(parkeds);
         } catch (Exception e) {
             // Caso há algum erro, retornar um ERROR 500
@@ -180,8 +181,16 @@ public class AdminController {
     }
 
 
-//    @DeleteMapping("/parking/reset")
-//    public ResponseEntity<?> deleteAllParkPerDate(@RequestParam(value = "date") String code)
+
+    @DeleteMapping("/parking/reset")
+    public ResponseEntity<?> deleteAllParkPerDate(@RequestParam(value = "date") String date){
+        List<?> parkeds = Collections.singletonList(this.adminService.getParkedByDate(LocalDate.parse(date)));
+        if (parkeds.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not Found in this date!");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(this.adminService.resetByDate(LocalDate.parse(date)));
+
+    }
 
 
 

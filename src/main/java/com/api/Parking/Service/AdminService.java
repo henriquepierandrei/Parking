@@ -24,7 +24,7 @@ public class AdminService {
     CollectionRepository collectionRepository;
 
 
-    public List<ParkedModel> getParkedByDate(LocalDate date) {
+    public Optional<Object> getParkedByDate(LocalDate date) {
         // Verifica se a data é nula ou vazia
         if (date == null){
             throw new IllegalArgumentException("This date is null or empty!");
@@ -32,8 +32,8 @@ public class AdminService {
 
         // Tenta verificar se existe a entidade pela data!
         try {
-            List<ParkedModel> parkeds = this.parkedRepository.findByDateTimeArrival(date);
-            return parkeds != null ? parkeds : Collections.emptyList();
+            Optional<List<ParkedModel>> parkeds = this.parkedRepository.findByDate(date);
+            return Optional.of(parkeds.isPresent() ? parkeds : Collections.emptyList());
 
         // Caso nao existe retorna um erro!
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class AdminService {
         this.carRepository.delete(model);
     }
 
-    public Optional<ParkedModel> getByDate(LocalDate now) {
+    public Optional<List<ParkedModel>> getByDate(LocalDate now) {
         return this.parkedRepository.findByDate(now);
     }
 
@@ -120,7 +120,14 @@ public class AdminService {
     public void saveCollection(CollectionModel collectionModel){this.collectionRepository.save(collectionModel);}
 
 
+    public List<String> resetByDate(LocalDate date) {
+        Optional<List<ParkedModel>> parkedModels = this.parkedRepository.findByDate(date);
+        List<String> places = new ArrayList<>();
 
-
-
+        for (ParkedModel parkedModel : parkedModels.get()){
+            places.add(parkedModel.getPlace());
+            this.parkedRepository.delete(parkedModel);
+        }
+        return places;
+    }
 }

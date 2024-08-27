@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ParkedRepository extends JpaRepository<ParkedModel,Long> {
-    List<ParkedModel> findByDateTimeArrival(LocalDate date);
+    List<ParkedModel> findByDateTimeArrival(LocalDateTime date);
 
     Optional<ParkedModel> findByCode(String code);
 
     Optional<ParkedModel> findByPlace(String place);
 
-    Optional<ParkedModel> findByDate(LocalDate now);
+    Optional<List<ParkedModel>> findByDate(LocalDate now);
 }
