@@ -182,8 +182,8 @@ public class AdminController {
 
 
 
-    @DeleteMapping("/parking/reset")
     @Operation(summary = "Deleta todos os registros de acordo com a sua data!")
+    @DeleteMapping("/parking/reset")
     public ResponseEntity<?> deleteAllParkPerDate(@RequestParam(value = "date") String date){
         List<?> parkeds = Collections.singletonList(this.adminService.getParkedByDate(LocalDate.parse(date)));
         if (parkeds.isEmpty()){
@@ -192,6 +192,9 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(this.adminService.resetByDate(LocalDate.parse(date)));
 
     }
+
+
+
 
 
 
