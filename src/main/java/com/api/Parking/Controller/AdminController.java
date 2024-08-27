@@ -3,6 +3,7 @@ package com.api.Parking.Controller;
 import com.api.Parking.Dto.CreateParkedDto;
 import com.api.Parking.Dto.UpdateParkedDto;
 import com.api.Parking.Model.CarModel;
+import com.api.Parking.Model.CollectionModel;
 import com.api.Parking.Model.ParkedModel;
 import com.api.Parking.Service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,11 +50,20 @@ public class AdminController {
     @Operation(summary = "Registrar veículo no estacionamento!")
     public ResponseEntity<?> createParked(@RequestBody CreateParkedDto createParkedDto){
 
+
         // Verifica se já existe algum carro na vaga!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByPlace(createParkedDto.place());
         if (optionalParkedModel.isPresent()){
             // Se existe, retornar uma mensagem dizendo que está indisponível a vaga para estacionamento!
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not available!");
+        }
+
+        // Se não existe a entidade de arrecadação, é criado um de acordo com a data!
+        if (this.adminService.getCollectionByDate(LocalDate.now()) == null){
+            CollectionModel collectionModel = new CollectionModel();
+            collectionModel.setFinalValue(0);
+            collectionModel.setDate(LocalDate.now());
+            this.adminService.saveCollection(collectionModel);
         }
 
         // Cria a entidade CarModel para armazenar no ParkedModel e salvando no Banco de Dados.
@@ -67,6 +77,7 @@ public class AdminController {
 
         // Criando ParkedModel e salvando no Banco de Dados.
         ParkedModel parkedModel = new ParkedModel();
+        parkedModel.setDate(LocalDate.now());
         parkedModel.setDateTimeArrival(LocalDateTime.now());
         parkedModel.setPlace(createParkedDto.place().toString());
         parkedModel.setCode(this.adminService.createCode());
@@ -80,7 +91,7 @@ public class AdminController {
 
 
     @Operation(summary = "Obtém o valor a pagar de acordo com o tempo estacionado!", description = "Retorna o valor em reais!")
-    @GetMapping("/parking/difference")
+    @GetMapping("/parking/value")
     public ResponseEntity<Object> finishParkingPerPlace(@RequestParam(value = "code") String code){
         // Obtém a entidade de acordo com o seu código de acesso!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
@@ -88,8 +99,7 @@ public class AdminController {
         // Se a entidade for encontrada, cai nessa condição!
         if (optionalParkedModel.isPresent()){
 
-            // Recebe o valor a pagar!
-            Double value = this.adminService.hourDifferent(optionalParkedModel.get().getDateTimeArrival(),5);
+
             
             return ResponseEntity.status(HttpStatus.FOUND).body(value);
         }
@@ -106,6 +116,14 @@ public class AdminController {
 
         // Verifica se foi encontrado, se sim ele cai na condição!
         if (optionalParkedModel.isPresent()){
+
+
+            // Adiciona a entidade de arrecadação o valor arrecadado, antes de deletar a entidade que armazena os dados!
+            Double value = this.adminService.hourDifferent(optionalParkedModel.get().getDateTimeArrival(),5);
+            CollectionModel collectionModel = this.adminService.getCollectionByDate(LocalDate.now());
+            collectionModel.setFinalValue(collectionModel.getFinalValue()+value);
+
+
             // Deleta os dados do banco e retornar a vaga que foi liberada!
             this.adminService.deleteParkedAndCarModel(optionalParkedModel.get(),optionalParkedModel.get().getCar());
             return ResponseEntity.status(HttpStatus.OK).body("Place: "+optionalParkedModel.get().getPlace()+" disponível!");
@@ -159,6 +177,10 @@ public class AdminController {
         // Caso a entidade não seja encontrada, retornar uma resposta de conflito
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+
+
+//    @DeleteMapping("/parking/reset")
+//    public ResponseEntity<?> deleteAllParkPerDate(@RequestParam(value = "date") String code)
 
 
 
