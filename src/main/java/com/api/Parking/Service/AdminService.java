@@ -109,16 +109,18 @@ public class AdminService {
         this.carRepository.delete(model);
     }
 
-//    public String addCollectionValue(double value, LocalDate localDate){
-//        CollectionModel collectionModel = this.collectionRepository.findByDate(localDate);
-//        double oldValue = collectionModel.getFinalValue();
-//        double newValue = oldValue + value;
-//        collectionModel.setFinalValue(newValue);
-//        this.collectionRepository.save(collectionModel);
-//        System.out.println(newValue);
-//        return "R$ "+newValue;
-//
-//    }
+    public Optional<ParkedModel> getByDate(LocalDate now) {
+        return this.parkedRepository.findByDate(now);
+    }
+
+    public CollectionModel getCollectionByDate(LocalDate localDate){
+        return this.collectionRepository.findByDate(localDate);
+    }
+
+    public void saveCollection(CollectionModel collectionModel){this.collectionRepository.save(collectionModel);}
+
+
+
 
 
 }
