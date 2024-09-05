@@ -2,6 +2,7 @@ package com.api.Parking.Controller;
 
 import com.api.Parking.Dto.CreateParkedDto;
 import com.api.Parking.Dto.ResponseParkedDto;
+import com.api.Parking.Dto.ResponseParkedDto2;
 import com.api.Parking.Dto.UpdateParkedDto;
 import com.api.Parking.Model.CarModel;
 import com.api.Parking.Model.CollectionModel;
@@ -142,7 +143,7 @@ public class AdminController {
 
     @Operation(summary = "Obtém o valor a pagar de acordo com o tempo estacionado!", description = "Retorna o valor em reais!")
     @GetMapping("/parking/value")
-    public ResponseEntity<Object> finishParkingPerPlace(@RequestParam(value = "code") String code){
+    public ResponseEntity<ResponseParkedDto2> finishParkingPerPlace(@RequestParam(value = "code") String code){
         // Obtém a entidade de acordo com o seu código de acesso!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
 
@@ -151,11 +152,36 @@ public class AdminController {
 
             Double value = this.adminService.hourDifferent(optionalParkedModel.get().getDateTimeArrival(),5);
 
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
+            String dateTimeArrivalFormatted = optionalParkedModel.get().getDateTimeArrival() != null
+                    ? dateFormatter.format(optionalParkedModel.get().getDateTimeArrival())
+                    : "N/A";
+            String dateTimeExitFormatted = optionalParkedModel.get().getDateTimeExit() != null
+                    ? dateFormatter.format(optionalParkedModel.get().getDateTimeExit())
+                    : "N/A";
+
+            String value2 = String.valueOf(value);
+
+
+            ResponseParkedDto2 responseParkedDto2 = new ResponseParkedDto2(
+                    optionalParkedModel.get().getPlace(),
+                    dateTimeArrivalFormatted,
+                    dateTimeExitFormatted,
+                    optionalParkedModel.get().getCar().getPlate(),
+                    optionalParkedModel.get().getCar().getColor(),
+                    optionalParkedModel.get().getCar().getCarMark(),
+                    optionalParkedModel.get().getCar().getCarModel(),
+                    value2
+
+            );
+
             
-            return ResponseEntity.status(HttpStatus.FOUND).body(value);
+            return ResponseEntity.status(HttpStatus.OK).body(responseParkedDto2);
         }
         // Caso não ache a entidade, retorna um erro!
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND!");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 

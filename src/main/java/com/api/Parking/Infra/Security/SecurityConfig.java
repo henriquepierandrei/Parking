@@ -64,7 +64,8 @@ public class SecurityConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:5173"); // Permitir o seu frontend
+//        corsConfiguration.addAllowedOrigin("http://localhost:5173"); // Permitir o seu frontend
+        corsConfiguration.addAllowedOrigin("https://henriquepierandrei.github.io"); // Adicione a origem do seu frontend
         corsConfiguration.addAllowedMethod("*"); // Permitir todos os métodos (GET, POST, etc.)
         corsConfiguration.addAllowedHeader("*"); // Permitir todos os cabeçalhos
         corsConfiguration.setAllowCredentials(true); // Permitir credenciais, se necessário
