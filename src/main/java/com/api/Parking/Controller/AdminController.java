@@ -247,19 +247,22 @@ public class AdminController {
 
     @Operation(summary = "Obtém o veículo pelo código!", description = "Retorna o Veículo!")
     @GetMapping("/parking/find")
-    public ResponseEntity<Object> ParkingPerCode(@RequestParam(value = "code") String code){
+    public ResponseEntity<ResponseParkedDto> ParkingPerCode(@RequestParam(value = "code") String code){
         // Obtém a entidade de acordo com o seu código de acesso!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
 
-        List<ResponseParkedDto> responseParkedDtos = new ArrayList<>();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        String dateTimeArrivalFormatted = optionalParkedModel.get().getDateTimeArrival() != null ? dateFormatter.format(optionalParkedModel.get().getDateTimeArrival()) : "N/A";
-        String dateTimeExitFormatted = optionalParkedModel.get().getDateTimeExit() != null ? dateFormatter.format(optionalParkedModel.get().getDateTimeExit()) : "N/A";
-
-        // Se a entidade for encontrada, cai nessa condição!
         if (optionalParkedModel.isPresent()){
+            // Formata as datas
+            String dateTimeArrivalFormatted = optionalParkedModel.get().getDateTimeArrival() != null
+                    ? dateFormatter.format(optionalParkedModel.get().getDateTimeArrival())
+                    : "N/A";
+            String dateTimeExitFormatted = optionalParkedModel.get().getDateTimeExit() != null
+                    ? dateFormatter.format(optionalParkedModel.get().getDateTimeExit())
+                    : "N/A";
 
+            // Cria o DTO de resposta
             ResponseParkedDto responseParkedDto = new ResponseParkedDto(
                     optionalParkedModel.get().getPlace(),
                     dateTimeArrivalFormatted,
@@ -270,12 +273,14 @@ public class AdminController {
                     optionalParkedModel.get().getCar().getCarModel()
             );
 
-
-            return ResponseEntity.status(HttpStatus.FOUND).body(responseParkedDto);
+            // Retorna a resposta com status 200 OK
+            return ResponseEntity.status(HttpStatus.OK).body(responseParkedDto);
         }
-        // Caso não ache a entidade, retorna um erro!
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND!");
+
+        // Caso não ache a entidade, retorna um erro 404 NOT FOUND
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
 
 
 
