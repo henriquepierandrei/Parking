@@ -1,6 +1,7 @@
 package com.api.Parking.Controller;
 
 import com.api.Parking.Dto.CreateParkedDto;
+import com.api.Parking.Dto.ResponseParkedDto;
 import com.api.Parking.Dto.UpdateParkedDto;
 import com.api.Parking.Model.CarModel;
 import com.api.Parking.Model.CollectionModel;
@@ -19,10 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -33,24 +33,69 @@ public class AdminController {
 
 
     @GetMapping("/parkeds")
-    @Operation(summary = "Obter todos os veículos estacionados, de acordo com a data atual!", description = "Retorna as informações do veículo e a vaga estacionado.")
-    public ResponseEntity<List<?>> getParkeds(@RequestParam(value = "date") LocalDate date) {
+    @Operation(summary = "Obter todos os veículos estacionados, de acordo com a data atual!", description = "Retorna as informações do veículo e a vaga estacionada.")
+    public ResponseEntity<List<ResponseParkedDto>> getParkeds(@RequestParam(value = "date") String dateString) {
+        List<ResponseParkedDto> responseParkedDtos = new ArrayList<>();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Ajuste o formato conforme necessário
+
         try {
-            // Obtem e retorna a entidade salva no Banco de Dados!
-            List<?> parkeds = Collections.singletonList(this.adminService.getParkedByDate(date));
-            return ResponseEntity.ok(parkeds);
+            // Tenta converter a string para LocalDate
+            LocalDate date;
+            try {
+                date = LocalDate.parse(dateString, dateFormatter);
+            } catch (DateTimeParseException e) {
+                // Retorna um erro se a data estiver no formato incorreto
+                return ResponseEntity.badRequest().body(null);
+            }
+
+            System.out.println("Solicitado");
+
+            // Obtém a lista de veículos estacionados pela data
+            List<ParkedModel> parkeds = this.adminService.getParkedByDate(date);
+
+            // Verificação caso a lista esteja vazia
+            if (parkeds.isEmpty()){
+                System.out.println("Lista vazia :(");
+            }
+
+            // Formatação das datas
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
+
+            // Loop para criar e adicionar os DTOs à lista
+            for (ParkedModel parkedModel : parkeds) {
+                String dateTimeArrivalFormatted = parkedModel.getDateTimeArrival() != null ? formatter.format(parkedModel.getDateTimeArrival()) : "N/A";
+                String dateTimeExitFormatted = parkedModel.getDateTimeExit() != null ? formatter.format(parkedModel.getDateTimeExit()) : "N/A";
+
+                ResponseParkedDto responseParkedDto = new ResponseParkedDto(
+                        parkedModel.getPlace(),
+                        dateTimeArrivalFormatted,
+                        dateTimeExitFormatted,
+                        parkedModel.getCar().getPlate(),
+                        parkedModel.getCar().getColor(),
+                        parkedModel.getCar().getCarMark(),
+                        parkedModel.getCar().getCarModel()
+                );
+
+                // Adiciona o DTO à lista
+                responseParkedDtos.add(responseParkedDto);
+            }
+
+            return ResponseEntity.ok(responseParkedDtos);
         } catch (Exception e) {
-            // Caso há algum erro, retornar um ERROR 500
+            e.printStackTrace(); // Log da stack trace para depuração
+            // Retorna um status 500 em caso de erro
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
 
 
+
     @PostMapping("/create")
     @Operation(summary = "Registrar veículo no estacionamento!")
     public ResponseEntity<?> createParked(@RequestBody CreateParkedDto createParkedDto){
-
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
 
         // Verifica se já existe algum carro na vaga!
         Optional<ParkedModel> optionalParkedModel = this.adminService.getByPlace(createParkedDto.place());
@@ -63,6 +108,9 @@ public class AdminController {
         if (this.adminService.getCollectionByDate(LocalDate.now()) == null){
             CollectionModel collectionModel = new CollectionModel();
             collectionModel.setFinalValue(0);
+
+
+
             collectionModel.setDate(LocalDate.now());
             this.adminService.saveCollection(collectionModel);
         }
@@ -195,6 +243,42 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(this.adminService.resetByDate(LocalDate.parse(date)));
 
     }
+
+
+    @Operation(summary = "Obtém o veículo pelo código!", description = "Retorna o Veículo!")
+    @GetMapping("/parking/find")
+    public ResponseEntity<Object> ParkingPerCode(@RequestParam(value = "code") String code){
+        // Obtém a entidade de acordo com o seu código de acesso!
+        Optional<ParkedModel> optionalParkedModel = this.adminService.getByCode(code);
+
+        List<ResponseParkedDto> responseParkedDtos = new ArrayList<>();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        String dateTimeArrivalFormatted = optionalParkedModel.get().getDateTimeArrival() != null ? dateFormatter.format(optionalParkedModel.get().getDateTimeArrival()) : "N/A";
+        String dateTimeExitFormatted = optionalParkedModel.get().getDateTimeExit() != null ? dateFormatter.format(optionalParkedModel.get().getDateTimeExit()) : "N/A";
+
+        // Se a entidade for encontrada, cai nessa condição!
+        if (optionalParkedModel.isPresent()){
+
+            ResponseParkedDto responseParkedDto = new ResponseParkedDto(
+                    optionalParkedModel.get().getPlace(),
+                    dateTimeArrivalFormatted,
+                    dateTimeExitFormatted,
+                    optionalParkedModel.get().getCar().getPlate(),
+                    optionalParkedModel.get().getCar().getColor(),
+                    optionalParkedModel.get().getCar().getCarMark(),
+                    optionalParkedModel.get().getCar().getCarModel()
+            );
+
+
+            return ResponseEntity.status(HttpStatus.FOUND).body(responseParkedDto);
+        }
+        // Caso não ache a entidade, retorna um erro!
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND!");
+    }
+
+
+
 
 
 }

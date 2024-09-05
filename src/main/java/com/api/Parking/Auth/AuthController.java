@@ -36,8 +36,10 @@ public class AuthController {
         UserModel userModel = this.userRepository.findByEmail(loginDto.email()).orElseThrow(() -> new RuntimeException("User Not Found"));
         if (passwordEncoder.matches(loginDto.password(),userModel.getPassword())){
             String token = this.tokenService.generateToken(userModel);
+            System.out.println("User Logado");
             return ResponseEntity.ok(new ResponseDto(userModel.getName(),userModel.getEmail(),token));
         }
+        System.out.println("ERROR");
         return ResponseEntity.badRequest().build();
     }
 

@@ -24,22 +24,23 @@ public class AdminService {
     CollectionRepository collectionRepository;
 
 
-    public Optional<Object> getParkedByDate(LocalDate date) {
+    public List<ParkedModel> getParkedByDate(LocalDate date) {
         // Verifica se a data é nula ou vazia
         if (date == null){
             throw new IllegalArgumentException("This date is null or empty!");
         }
 
-        // Tenta verificar se existe a entidade pela data!
+        // Tenta verificar se existe a entidade pela data
         try {
             Optional<List<ParkedModel>> parkeds = this.parkedRepository.findByDate(date);
-            return Optional.of(parkeds.isPresent() ? parkeds : Collections.emptyList());
+            // Retorna a lista se presente, ou uma lista vazia se não presente
+            return parkeds.orElse(Collections.emptyList());
 
-        // Caso nao existe retorna um erro!
         } catch (Exception e) {
             throw new ServiceException("Erro ao buscar os dados estacionados", e);
         }
     }
+
 
     public String createCode(){
 
